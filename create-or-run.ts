@@ -9,6 +9,8 @@ async function createOrRunDayProject(): Promise<void> {
 
   const day = parseInt(process.argv[2]);
 
+  const noInputFile = process.argv[3] === 'no-input';
+
   try {
     await fs.access(`day${day}/day${day}.ts`, 0);
 
@@ -24,13 +26,43 @@ async function createOrRunDayProject(): Promise<void> {
 
   console.log(`> Creating files for day ${day}...`);
 
-  const content = `async function day${day}(): Promise<void> {\n\n}\n\nday${day}();`;
+  const content = `import * as fs from 'fs';
+import * as readline from 'readline';
+
+async function day${day}(): Promise<void> {
+  const inputFile = fs.createReadStream('./day${day}/input.txt');
+  const inputLines = readline.createInterface({
+    input: inputFile,
+    crlfDelay: Infinity,
+  });
+
+  for await (const inputLine of inputLines) {
+  }
+
+  console.log('Hello from day ${day}!');
+}
+
+day${day}();
+`;
+
+  const contentNoInputFile = `async function day${day}(): Promise<void> {
+  console.log('Hello from day ${day}!');
+}
+
+day${day}();
+`;
 
   try {
     if (!fsSync.existsSync(`day${day}`)) {
       await fs.mkdir(`day${day}`);
     }
-    await fs.writeFile(`day${day}/day${day}.ts`, content);
+    await fs.writeFile(
+      `day${day}/day${day}.ts`,
+      noInputFile ? contentNoInputFile : content,
+    );
+    if (!noInputFile) {
+      await fs.writeFile(`day${day}/input.txt`, '');
+    }
   } catch (err) {
     console.error('Error: There was an error when creating the files!');
     console.error(err);
