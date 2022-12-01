@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "day": "ts-node create-or-run.ts",
     "eslint": "eslint ./src/ --ext js,jsx,ts,tsx",
     "eslint:fix": "eslint \"{src,test}/**/*.ts\" --fix"
   },
