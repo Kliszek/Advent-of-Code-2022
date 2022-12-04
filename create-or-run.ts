@@ -19,7 +19,11 @@ async function createOrRunDayProject(): Promise<void> {
     return;
   } catch (err: any) {
     if (err?.code !== 'ENOENT') {
-      console.error('Error: Cannot access the file!');
+      if (err?.syscall === 'access') {
+        console.error('Error: Cannot access the file!');
+      } else {
+        console.error(err);
+      }
       return;
     }
   }
@@ -61,7 +65,7 @@ day${day}();
       noInputFile ? contentNoInputFile : content,
     );
     if (!noInputFile) {
-      await fs.writeFile(`day${day}/input.txt`, '');
+      await fs.appendFile(`day${day}/input.txt`, '');
     }
   } catch (err) {
     console.error('Error: There was an error when creating the files!');
