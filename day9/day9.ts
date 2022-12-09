@@ -4,6 +4,7 @@ import * as readline from 'readline';
 type Point = [number, number];
 
 function createRope(length: number): Point[] {
+  // rope.fill() wouldn't work here, because the array would be filled with the reference to the same point
   const rope: Point[] = [];
   for (let i = 0; i < length; i++) {
     rope[i] = [0, 0];
@@ -13,18 +14,20 @@ function createRope(length: number): Point[] {
 
 // Calculates the tail position after a head move.
 // Assumes that the tail position was correct before the head moved.
-function handleKnotMove(head: Point, tail: Point): Point {
+function handleKnotMove(head: Point, tail: Point): void {
   const vector = [head[0] - tail[0], head[1] - tail[1]];
-  let moveVector = [0, 0];
+  // Does the tail need to be moved at all?
   if (Math.abs(vector[0]) > 1 || Math.abs(vector[1]) > 1) {
-    moveVector = vector.map((d) => (Math.abs(d) > 1 ? d - Math.sign(d) : d));
+    // Move it 1 unit closer to the head in each axis
+    const moveVector = vector.map((d) => Math.sign(d));
+    tail[0] += moveVector[0];
+    tail[1] += moveVector[1];
   }
-  return [tail[0] + moveVector[0], tail[1] + moveVector[1]];
 }
 
 function updateRope(rope: Point[]): void {
   for (let i = 1; i < rope.length; i++) {
-    rope[i] = handleKnotMove(rope[i - 1], rope[i]);
+    handleKnotMove(rope[i - 1], rope[i]);
   }
 }
 
